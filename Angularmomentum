@@ -1,0 +1,52 @@
+from __future__ import print_function,divsion
+from visual import *
+from visual.graph import *
+# Angular momentum in an elliptical orbit
+print("""click to specify location A.""")
+scene.y = 0
+scene.width = 1024
+scene.height = 768
+scene.background = color.white
+L = 1.5e11
+##scene.center = (L/2,0,0)
+sun = sphere(pos=(0,0,0), color=color.yellow, radius=1e10)
+sun.mass = 2e30
+earth = sphere(pos=(L,0,0), radius=2e9, color=color.red)
+earth.mass = 6e24
+ev = 2.*pi*L/(365.*24.*60.*60.)
+earth.p = vector(0, 0, -earth.mass*ev)
+earth.trail = curve(color=earth.color)
+dt = 60.*60.
+G = 6.7e-11
+scene.autoscale = 0
+earth.p = earth.p/1.5
+r = sun.pos-earth.pos
+F = (G*earth.mass*sun.mass/r.mag**2)*norm(r)
+flag=0
+t=0
+L1scale = 4e10/1e40
+L2scale = 4e10/1e40
+L1a = arrow(pos=sun.pos, shaftwidth=earth.radius,axis=(0,0,0), color=color.green,
+                fixedwidth=1, visible=0)
+L2a = arrow(pos=sun.pos, shaftwidth=earth.radius, axis=(0,0,0), color=color.green,
+                fixedwidth=1, visible=0)
+while 1:
+        rate(1000)
+        if scene.mouse.clicked:
+            mm = scene.mouse.getclick()
+            L2a.visible=1
+            if mm.pick is sun:
+                L2a.pos = sun.pos
+            else:
+                L2a.pos = mm.pos
+        r = sun.pos-earth.pos
+        F = (G*earth.mass*sun.mass/r.mag**2)*norm(r)
+        earth.p = earth.p + F*dt
+        earth.pos = earth.pos + (earth.p/earth.mass)*dt
+        t=t+dt
+        earth.trail.append(pos=earth.pos)
+        L1 = cross (-r, earth.p)
+        L2 = cross ((earth.pos-L2a.pos), earth.p)
+        L1a.axis = L1*L1scale
+        L2a.axis = L2*L2scale
+
